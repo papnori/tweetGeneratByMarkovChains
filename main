@@ -1,0 +1,55 @@
+import csv as csv 
+import numpy as np
+import sys
+from pprint import pprint
+import random
+import sys
+
+test_file = open('C:/Users/i332017/Downloads/tweetTestOrigin.csv','rt')
+test_object = csv.reader(test_file)
+
+data=[]
+for row in test_object:
+    data.append(row)
+data = np.array(data) 
+stopword = "\n" # Since we split on whitespace, this can never be a word
+stopsentence = (".", "!", "?",) # Cause a "new sentence" if found at the end of a word
+sentencesep  = " " #String used to seperate sentences
+
+# GENERATE TABLE
+w1 = stopword
+w2 = stopword
+table = {}
+
+#for line in data:
+for line in data[::, 5]:
+    #print(line)
+    for word in line.split():
+        #print(word)
+        if word[-1] in stopsentence:
+            table.setdefault( (w1, w2), [] ).append(word[0:-1])
+            w1, w2 = w2, word[0:-1]
+            word = word[-1]
+        table.setdefault( (w1, w2), [] ).append(word)
+        w1, w2 = w2, word
+# Mark the end of the file
+table.setdefault( (w1, w2), [] ).append(stopword)
+# GENERATE SENTENCE OUTPUT
+maxsentences  = 5
+
+w1 = stopword
+w2 = stopword
+sentencecount = 0
+sentence = []
+
+# I was having trouble with aspn commets
+while sentencecount < maxsentences:
+    newword = random.choice(table[(w1, w2)])
+    if newword == stopword: break
+    if newword in stopsentence:
+        print ("%s%s%s" % (" ".join(sentence), newword, sentencesep))
+        sentence = []
+        sentencecount += 1
+    else:
+        sentence.append(newword)
+    w1, w2 = w2, newword
